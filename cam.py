@@ -50,8 +50,8 @@ if __name__ == "__main__":
     kernel3 = np.ones((3,3), np.uint8)
     kernel9 = np.ones((11,11), np.float32)/225
     # Range setting
-    lower_led = np.array([60,0,0])
-    upper_led = np.array([,255,255])
+    lower_led = np.array([0, 150, 60])
+    upper_led = np.array([13, 240, 170])
     # loop forever
     while True:
         # Tell the CvSink to grab a frame from the camera and put it
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             cy1 = int(y+(z/2))
             cx1 = int(x+(w/2))
             
-            if len(contours) > 2:
+            '''if len(contours) > 2:
                 v = contours[2]
                 f, g ,h, i = cv2.boundingRect(v)
                 
@@ -114,14 +114,14 @@ if __name__ == "__main__":
                 cv2.circle(erosion, (cx, cy), 5, (150, 0, 255), -1)
                 sd.putNumber("Coordinate X", cx)
                 sd.putNumber("Coordinate Y", cy)
-            else:
-                cx = cx1
-                cy = cy1
-                #coordinates = ('X' + str(cx) + 'Y' + str(cy) + 'N' + str(n)) #String form
-                #print(coordinates)
-                cv2.circle(blur, (cx, cy), 5, (150, 0, 255), -1)
-                sd.putNumber("Coordinate X", cx)
-                sd.putNumber("Coordinate Y", cy)
+            else:'''
+            cx = cx1
+            cy = cy1
+            #coordinates = ('X' + str(cx) + 'Y' + str(cy) + 'N' + str(n)) #String form
+            #print(coordinates)
+            cv2.circle(erosion, (cx, cy), 5, (150, 0, 255), -1)
+            #sd.putNumber("Coordinate X", cx)
+            #sd.putNumber("Coordinate Y", cy)
 
 
         outputStream.putFrame(erosion)

@@ -27,16 +27,24 @@ if __name__ == "__main__":
     # Start camera 0
     cam0 = cs.startAutomaticCapture(name="cam0", path='/dev/video0')
     cam0.setResolution(160, 120)
+    #Start camera 1
+    cam1 = cs.startAutomaticCapture(name="cam1", path='/dev/video1')
+    cam1.setResolution(160,120)
     # Get a CvSink. This will capture images from the camera
     cvSink = cs.getVideo(name="cam0")
+    cvSink1 = cs.getVideo(name="cam1")
     # (optional) Setup a CvSource. This will send images back to the Dashboard
     outputStream = cs.putVideo(name="p_cam0", width=160, height=120)
+    outputStream1 = cs.putVideo(name="p_cam1", width=160, height=120)
     # sending cam to dashboard
     cameras = []
     cameras.append(cam0)
     cameras.append(outputStream)
+    cameras.append(cam1)
+    cameras.append(outputStream1)
     # Allocating new images is very expensive, always try to preallocate
     img = np.zeros(shape=(160, 120, 3), dtype=np.uint8)
+    img1 = np.zeros(shape=(160, 120, 3), dtype=np.uint8)
     hsv = np.zeros(shape=(160, 120, 3), dtype=np.uint8)
     mask = np.zeros(shape=(160, 120, 3), dtype=np.uint8)
     out = np.zeros(shape=(160, 120, 3), dtype=np.uint8)
@@ -57,13 +65,15 @@ if __name__ == "__main__":
         # Tell the CvSink to grab a frame from the camera and put it
         # in the source image.  If there is an error notify the output.
         time, img = cvSink.grabFrame(img)
+        time, img1 = cvSink.grabFrame(img1)
         if time == 0:
             # Send the output the error.
             outputStream.notifyError(cvSink.getError());
+            outputStream1.notifyError(cvSink.getError());
             # skip the rest of the current iteration
             continue
         # Put your openCv logic here
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)
         # Mask Applying
         mask = cv2.inRange(hsv, lower_led, upper_led)
         #Image filtering
@@ -77,46 +87,11 @@ if __name__ == "__main__":
         erosion, contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         #Center of the object
         if len(contours) != 0:
-        
-            sorted(contours, key=cv2.contourArea, reverse = True)
-            
-            c = contours[0]
+            c = max(contours, key = cv2.contourArea)
             x, y, w, z = cv2.boundingRect(c)
-            cy1 = int(y+(z/2))
-            cx1 = int(x+(w/2))
-            
-            '''if len(contours) > 2:
-                v = contours[2]
-                f, g ,h, i = cv2.boundingRect(v)
-                
-                cy2 = int(g+(i/2))
-                cx2 = int(f+(h/2))
+            cy = int(y+(z/2))
+            cx = int(x+(w/2))
 
-                cx = int((cx1+cx2)/2)
-                cy = int((cy1+cy2)/2)
-
-                cv2.circle(erosion, (cx, cy), 5, (150, 0, 255), -1)
-                sd.putNumber("Coordinate X", cx)
-                sd.putNumber("Coordinate Y", cy)
-                
-            elif len(contours) != 1:
-                v = contours[1]
-                f, g ,h, i = cv2.boundingRect(v)
-                
-                cy2 = int(g+(i/2))
-                cx2 = int(f+(h/2))
-
-                cx = int((cx1+cx2)/2)
-                cy = int((cy1+cy2)/2)
-                #print (cx)
-                #print (cy)
-
-                cv2.circle(erosion, (cx, cy), 5, (150, 0, 255), -1)
-                sd.putNumber("Coordinate X", cx)
-                sd.putNumber("Coordinate Y", cy)
-            else:'''
-            cx = cx1
-            cy = cy1
             #coordinates = ('X' + str(cx) + 'Y' + str(cy) + 'N' + str(n)) #String form
             #print(coordinates)
             cv2.circle(erosion, (cx, cy), 5, (150, 0, 255), -1)
@@ -125,3 +100,4 @@ if __name__ == "__main__":
 
 
         outputStream.putFrame(erosion)
+        outputStream1.putFrame(img)

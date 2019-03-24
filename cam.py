@@ -99,5 +99,5 @@ if __name__ == "__main__":
             #sd.putNumber("Coordinate Y", cy)
 
 
-        outputStream.putFrame(erosion)
-        outputStream1.putFrame(img)
+        outputStream1.putFrame(erosion)
+        outputStream.putFrame(img)
